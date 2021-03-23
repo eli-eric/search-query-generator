@@ -1,8 +1,8 @@
 {
-  "name": "Search-Api-Query-Generator",
+  "name": "search-query-generator",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:noobadmin/Search-Api-Query-Generator.git",
+  "repository": "git@github.com:noobadmin/search-query-generator.git",
   "author": "Jiri Majer <juras.majer@gmail.com>",
   "license": "MIT",
   "dependencies": {
