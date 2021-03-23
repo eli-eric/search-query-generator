@@ -39,7 +39,7 @@ const filters = [
     value: 'Bob',
     name: 'fullName',
   },
-  {name: 'title', value: 'recoil', operator: 'ilike'},
+  {name: 'title', value: 'recoil', operator: 'like'},
   {name: 'type', value: 'proposal'},
 ]
 
