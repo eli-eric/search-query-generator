@@ -3,7 +3,7 @@ Generates PaNOSC Search Api queries
 
 ## Usage
 Needs two parameters, config and filters, e.g.:
-```
+``` javascript
 const config = {
   skip: 0,
   limit: 10,
