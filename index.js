@@ -185,7 +185,6 @@ const cleanup = flip(useWith(over(__, values, __), [lensPath, identity]))
 const makeQuery =  converge(
   pipe(
     reduce(cleanup),
-    log('query from parser'),
     JSON.stringify,
     encodeURIComponent,
   ),
