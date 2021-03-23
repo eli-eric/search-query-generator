@@ -18,6 +18,7 @@ import {
   both,
   concat,
   converge,
+  curry,
   descend,
   equals,
   filter,
@@ -194,4 +195,6 @@ const makeQuery =  converge(
   ],
 )
 
-export default makeQuery
+const generator = curry((config, filters) => makeQuery(config, filters))
+
+export default generator
