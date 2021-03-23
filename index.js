@@ -195,4 +195,4 @@ const makeQuery =  converge(
   ],
 )
 
-export default (config) => (filters) => makeQuery(config, filters)
+export default makeQuery
