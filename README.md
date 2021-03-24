@@ -4,6 +4,8 @@ Generates PaNOSC Search Api queries
 ## Usage
 Needs two parameters, config and filters, e.g.:
 ``` javascript
+import generator from 'search-api-generator'
+
 const config = {
   skip: 0,
   limit: 10,
