@@ -6,7 +6,7 @@
  *
  * feedback is very welcome, i'm very new to fp
  *
- * feel free to put log('your label') in any pipe
+ * feel free to put log('your label') in any pipe or wrap any other function in pipe(log('before fn'), fn, log('after fn'))
  **/
 
 import {
