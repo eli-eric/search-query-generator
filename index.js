@@ -149,7 +149,7 @@ const makeObjectFromFilters = pipe(
   reduce(mergeDeepRight, {}),
 )
 
-const getPathsFromConfig = pipe(prop('include'), map(getPathFromTarget))
+const getPathsFromConfig = pipe(propOr([], 'include'), map(getPathFromTarget))
 
 const getPathsFromFilters = pipe(
   filter(has('target')),
