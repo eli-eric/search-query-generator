@@ -1,5 +1,5 @@
 import generator from "./index";
-import { pipe, __, forEach } from "ramda";
+import { pipe, forEach } from "ramda";
 import testCases from "./test-cases.json";
 
 const toQueryString = pipe(JSON.stringify, encodeURIComponent);
