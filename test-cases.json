@@ -1,0 +1,299 @@
+[
+  { name: "Empty query", shouldBe: {} },
+  {
+    name: "Query datasets acquired using X-Ray Absorption",
+    shouldBe: {
+      include: [
+        {
+          relation: "techniques",
+          scope: {
+            where: {
+              name: "x-ray absorption",
+            },
+          },
+        },
+      ],
+    },
+    filters: [
+      {
+        target: ["techniques"],
+        value: "x-ray absorption",
+      },
+    ],
+  },
+  {
+    name: "Query datasets where the photon energy range is 880-990 eV",
+    shouldBe: {
+      include: [
+        {
+          relation: "parameters",
+          scope: {
+            where: {
+              and: [
+                {
+                  name: "photon_energy",
+                },
+                {
+                  value: {
+                    between: [880, 990],
+                  },
+                },
+                {
+                  unit: "eV",
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+    filters: [
+      {
+        target: ["parameters"],
+        name: "photon_energy",
+        value: [880, 990],
+        operator: "between",
+        unit: "eV",
+      },
+    ],
+  },
+  {
+    name: "Query datasets with a solid sample or copper",
+    shouldBe: {
+      include: [
+        {
+          relation: "parameters",
+          scope: {
+            where: {
+              or: [
+                {
+                  and: [
+                    {
+                      name: "sample_state",
+                    },
+                    {
+                      value: "solid",
+                    },
+                  ],
+                },
+                {
+                  and: [
+                    {
+                      name: "chemical_formula",
+                    },
+                    {
+                      value: "Cu",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+    filters: [
+      {
+        target: ["parameters"],
+        operator: "or",
+        filters: [
+          { name: "sample_state", value: "solid" },
+          { name: "chemical_formula", value: "Cu" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Query datasets where termperature is below 80C",
+    shouldBe: {
+      include: [
+        {
+          relation: "parameters",
+          scope: {
+            where: {
+              and: [
+                {
+                  name: "temperature",
+                },
+                {
+                  value: {
+                    lt: 80,
+                  },
+                },
+                {
+                  unit: "celsius",
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+    filters: [
+      {
+        target: ["parameters"],
+        name: "temperature",
+        value: 80,
+        operator: "lt",
+        unit: "celsius",
+      },
+    ],
+  },
+  {
+    name: "Query datasets with files matching a string using full text search",
+    shouldBe: {
+      include: [
+        {
+          relation: "files",
+          scope: {
+            where: {
+              text: "file1",
+            },
+          },
+        },
+      ],
+    },
+    filters: [{ target: ["files"], name: "text", value: "file1" }],
+  },
+  {
+    name: "Query documents of type proposal containing my own data",
+    shouldBe: {
+      include: [
+        {
+          relation: "datasets",
+        },
+        {
+          relation: "members",
+          scope: {
+            where: {
+              role: "principal investigator",
+            },
+            include: [
+              {
+                relation: "person",
+                scope: {
+                  where: {
+                    fullName: "James Chadwick",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+      where: {
+        type: "proposal",
+      },
+    },
+    filters: [
+      { name: "type", value: "proposal" },
+      { name: "role", value: "principal investigator", target: ["members"] },
+      {
+        target: ["members", "person"],
+        name: "fullName",
+        value: "James Chadwick",
+      },
+    ],
+    config: { include: [["datasets"]] },
+  },
+  {
+    name:
+      "Query documents containing datasets where wavelength is 1000-1100 nm",
+    shouldBe: {
+      include: [
+        {
+          relation: "datasets",
+          scope: {
+            include: [
+              {
+                relation: "parameters",
+                scope: {
+                  where: {
+                    and: [
+                      {
+                        name: "wavelength",
+                      },
+                      {
+                        value: {
+                          between: [1000, 1100],
+                        },
+                      },
+                      {
+                        unit: "nm",
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+    filters: [
+      {
+        target: ["datasets", "parameters"],
+        name: "wavelength",
+        value: [1000, 1100],
+        unit: "nm",
+        operator: "between",
+      },
+    ],
+  },
+  {
+    name:
+      "Query documents investigating a particular sample using a certain technique",
+    shouldBe: {
+      include: [
+        {
+          relation: "datasets",
+          scope: {
+            include: [
+              {
+                relation: "samples",
+                scope: {
+                  where: {
+                    name: "solid copper cylinder",
+                  },
+                },
+              },
+              {
+                relation: "techniques",
+                scope: {
+                  where: {
+                    name: "x-ray absorption",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+    filters: [
+      { target: ["datasets", "samples"], value: "solid copper cylinder" },
+      { target: ["datasets", "techniques"], value: "x-ray absorption" },
+    ],
+  },
+  {
+    name: "Query instruments by name",
+    shouldBe: {
+      where: {
+        name: "LoKI",
+      },
+    },
+    filters: [{ value: "LoKI" }],
+  },
+  {
+    name: "Query instruments at a certain facility with pagination",
+    shouldBe: {
+      skip: 0,
+      limit: 3,
+      where: {
+        facility: "ESS",
+      },
+    },
+    filters: [{ name: "facility", value: "ESS" }],
+    config: { skip: 0, limit: 3 },
+  },
+]

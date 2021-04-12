@@ -52,109 +52,112 @@ import {
   useWith,
   values,
   when,
-} from 'ramda'
+} from "ramda";
 
 const log = (label) => (xs) => {
-  console.log(label)
-  console.log(xs)
-  return xs
-}
+  console.log(label);
+  console.log(xs);
+  return xs;
+};
 
 const makePathFromTarget = reduceRight(
   (val, acc) =>
     isEmpty(acc)
-      ? {include: {[val]: {relation: val}}}
-      : {include: {[val]: {relation: val, scope: acc}}},
-  {},
-)
+      ? { include: { [val]: { relation: val } } }
+      : { include: { [val]: { relation: val, scope: acc } } },
+  {}
+);
 const getPathFromTarget = addIndex(reduceRight)(
   (val, acc, idx, list) =>
     idx === list.length - 1
-      ? ['include', val, ...acc]
-      : ['scope', 'include', val, ...acc],
-  ['scope', 'where'],
-)
+      ? ["include", val, ...acc]
+      : ["scope", "include", val, ...acc],
+  ["scope", "where"]
+);
 
 const makeNonParameter = converge(objOf, [
-  propOr('name', 'name'),
+  propOr("name", "name"),
   ifElse(
-    has('operator'),
-    converge(objOf, [prop('operator'), prop('value')]),
-    prop('value'),
+    has("operator"),
+    converge(objOf, [prop("operator"), prop("value")]),
+    prop("value")
   ),
-])
+]);
 
 const makeParameter = pipe(
   juxt([
-    pipe(prop('unit'), objOf('unit')),
-    pick(['name']),
-    ifElse(
-      has('operator'),
-      converge(objOf, [prop('operator'), prop('value')]),
-      pick(['value']),
+    pick(["name"]),
+    pipe(
+      ifElse(
+        has("operator"),
+        converge(objOf, [prop("operator"), prop("value")]),
+        prop(["value"])
+      ),
+      objOf("value")
     ),
+    pipe(prop("unit"), objOf("unit")),
   ]),
-  reject(both(has('unit'), pipe(prop('unit'), isNil))),
-  objOf('and'),
-)
+  reject(both(has("unit"), pipe(prop("unit"), isNil))),
+  objOf("and")
+);
 
-const isParameter = pipe(prop('target'), last, equals('parameters'))
+const isParameter = pipe(prop("target"), last, equals("parameters"));
 
 const makeObjectFromConfig = pipe(
-  pick(['skip', 'limit', 'include']),
+  pick(["skip", "limit", "include"]),
   when(
-    has('include'),
+    has("include"),
     over(
-      lensProp('include'),
+      lensProp("include"),
       pipe(
-        map(pipe(makePathFromTarget, prop('include'))),
-        reduce(mergeDeepRight, {}),
-      ),
-    ),
-  ),
-)
+        map(pipe(makePathFromTarget, prop("include"))),
+        reduce(mergeDeepRight, {})
+      )
+    )
+  )
+);
 
 const makeFilter = ifElse(
   isParameter,
   ifElse(
-    has('filters'),
+    has("filters"),
     converge(objOf, [
-      prop('operator'),
-      pipe(prop('filters'), map(makeParameter)),
+      prop("operator"),
+      pipe(prop("filters"), map(makeParameter)),
     ]),
-    makeParameter,
+    makeParameter
   ),
   ifElse(
-    has('filters'),
+    has("filters"),
     converge(objOf, [
-      prop('operator'),
-      pipe(prop('filters'), map(makeNonParameter)),
+      prop("operator"),
+      pipe(prop("filters"), map(makeNonParameter)),
     ]),
-    makeNonParameter,
-  ),
-)
+    makeNonParameter
+  )
+);
 
 const makeObjectFromFilters = pipe(
   map(
     ifElse(
-      has('target'),
+      has("target"),
       converge(assocPath, [
-        pipe(prop('target'), getPathFromTarget),
+        pipe(prop("target"), getPathFromTarget),
         makeFilter,
-        pipe(prop('target'), makePathFromTarget),
+        pipe(prop("target"), makePathFromTarget),
       ]),
-      pipe(makeNonParameter, objOf('where')),
-    ),
+      pipe(makeNonParameter, objOf("where"))
+    )
   ),
-  reduce(mergeDeepRight, {}),
-)
+  reduce(mergeDeepRight, {})
+);
 
-const getPathsFromConfig = pipe(propOr([], 'include'), map(getPathFromTarget))
+const getPathsFromConfig = pipe(propOr([], "include"), map(getPathFromTarget));
 
 const getPathsFromFilters = pipe(
-  filter(has('target')),
-  map(pipe(prop('target'), getPathFromTarget)),
-)
+  filter(has("target")),
+  map(pipe(prop("target"), getPathFromTarget))
+);
 
 const makeUniqueSortedPathsToIncludeKeys = pipe(
   concat,
@@ -163,38 +166,34 @@ const makeUniqueSortedPathsToIncludeKeys = pipe(
       addIndex(map)((item, idx, list) => {
         //fml
         return when(
-          equals('include'),
-          always(slice(0, add(1, idx), list)),
-        )(item)
+          equals("include"),
+          always(slice(0, add(1, idx), list))
+        )(item);
       }),
-      filter(is(Array)),
-    ),
+      filter(is(Array))
+    )
   ),
   unnest,
   uniq,
-  sort(descend(length)),
-)
+  sort(descend(length))
+);
 
 const getPathsDueCleanup = useWith(makeUniqueSortedPathsToIncludeKeys, [
   getPathsFromConfig,
   getPathsFromFilters,
-])
+]);
 
 //this looks more complicated than it should
-const cleanup = flip(useWith(over(__, values, __), [lensPath, identity]))
+const cleanup = flip(useWith(over(__, values, __), [lensPath, identity]));
 
-const makeQuery =  converge(
-  pipe(
-    reduce(cleanup),
-    JSON.stringify,
-    encodeURIComponent,
-  ),
+const makeQuery = converge(
+  pipe(reduce(cleanup), JSON.stringify, encodeURIComponent),
   [
     useWith(mergeDeepRight, [makeObjectFromConfig, makeObjectFromFilters]),
     getPathsDueCleanup,
-  ],
-)
+  ]
+);
 
-const generator = curry((config, filters) => makeQuery(config, filters))
+const generator = curry((config, filters) => makeQuery(config, filters));
 
-export default generator
+export default generator;
