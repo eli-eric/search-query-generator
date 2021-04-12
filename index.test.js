@@ -1,5 +1,5 @@
 import generator from "./index";
-import { pipe, __, forEach, prop } from "ramda";
+import { pipe, __, forEach } from "ramda";
 import testCases from "./test-cases.json";
 
 const toQueryString = pipe(JSON.stringify, encodeURIComponent);
@@ -12,11 +12,7 @@ const testQuery = (queryDescription, targetOutput, filters, config) => {
 };
 
 const runTests = forEach((x) => {
-  const propX = prop(__, x);
-  const name = propX("name");
-  const shouldBe = propX("shouldBe");
-  const filters = propX("filters");
-  const config = propX("config");
+  const { name, shouldBe, filters, config } = x;
   testQuery(name, shouldBe, filters, config);
 });
 
