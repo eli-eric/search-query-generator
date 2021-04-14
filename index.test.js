@@ -4,16 +4,16 @@ import testCases from "./test-cases.json";
 
 const toQueryString = pipe(JSON.stringify, encodeURIComponent);
 
-const testQuery = (queryDescription, targetOutput, filters, config) => {
+const testQuery = (record) => {
+  const { name, shouldBe, filters, config } = record;
   const result = generator(config ?? {}, filters ?? []);
-  test(queryDescription, () => {
-    expect(result).toBe(toQueryString(targetOutput));
+  test(name, () => {
+    expect(result).toBe(toQueryString(shouldBe));
   });
 };
 
-const runTests = forEach((x) => {
-  const { name, shouldBe, filters, config } = x;
-  testQuery(name, shouldBe, filters, config);
+const runTests = forEach((record) => {
+  testQuery(record);
 });
 
 runTests(testCases);
