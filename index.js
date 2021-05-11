@@ -103,16 +103,13 @@ const makeParameter = pipe(
 
 const isParameter = pipe(prop("target"), last, equals("parameters"));
 
-const makeObjectFromConfig = pipe(
-  pick(["skip", "limit", "include"]),
-  when(
-    has("include"),
-    over(
-      lensProp("include"),
-      pipe(
-        map(pipe(makePathFromTarget, prop("include"))),
-        reduce(mergeDeepRight, {})
-      )
+const makeObjectFromConfig = when(
+  has("include"),
+  over(
+    lensProp("include"),
+    pipe(
+      map(pipe(makePathFromTarget, prop("include"))),
+      reduce(mergeDeepRight, {})
     )
   )
 );
